@@ -1,34 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react'
+import { Box, Link, Text } from '@chakra-ui/react'
+import { fetchRepoIssues, parseRepoUrl } from './api/github'
+import { useDispatch, useSelector } from 'react-redux'
+import { setIssues, setRepoKey } from './store/slices/issuesSlice'
+import { RootState } from './store/store'
+import RepoInput from './components/RepoInput'
+import KanbanBoard from './components/KanbanBoard'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const dispatch = useDispatch()
+  const { repoKey } = useSelector((state: RootState) => state.issues)
+  const [owner, setOwner] = useState('')
+  const [repo, setRepo] = useState('')
+
+  const handleLoad = async (owner: string, repo: string) => {
+    setOwner(owner)
+    setRepo(repo)
+    const issues = await fetchRepoIssues(owner, repo)
+    const todo = issues.filter(i => i.state === 'open' && !i.assignee)
+    const inProgress = issues.filter(i => i.state === 'open' && i.assignee)
+    const done = issues.filter(i => i.state === 'closed')
+    dispatch(setIssues({ todo, inProgress, done }))
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <Box p={4}>
+      <Text fontSize="2xl" mb={2}>GitHub Kanban Board</Text>
+      <RepoInput onLoad={handleLoad} />
+      {repoKey && (
+        <Box mb={4}>
+          <Link href={`https://github.com/${owner}`} target="_blank" mr={4}>
+            {owner} (User Profile)
+          </Link>
+          <Link href={`https://github.com/${owner}/${repo}`} target="_blank">
+            {repo} (Repo)
+          </Link>
+        </Box>
+      )}
+      <KanbanBoard />
+    </Box>
   )
 }
 
