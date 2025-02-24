@@ -1,6 +1,8 @@
 import React from 'react'
-import { Droppable } from '@hello-pangea/dnd'
+import { Droppable, Draggable } from '@hello-pangea/dnd'
+import { Box, Text } from '@chakra-ui/react'
 import { Issue } from '../store/slices/issuesSlice'
+import IssueCard from './IssueCard'
 
 interface ColumnProps {
   columnId: 'todo' | 'inProgress' | 'done'
@@ -10,19 +12,34 @@ interface ColumnProps {
 
 const Column: React.FC<ColumnProps> = ({ columnId, title, issues }) => {
   return (
-    <div style={{ flex: 1, padding: '1rem', backgroundColor: '#f4f4f4', borderRadius: '8px' }}>
-      <h2>{title}</h2>
+    <Box flex="1" border="1px solid #ccc" borderRadius="md" p={2}>
+      <Text fontSize="xl" mb={2}>{title}</Text>
       <Droppable droppableId={columnId}>
         {(provided) => (
-          <div ref={provided.innerRef} {...provided.droppableProps}>
+          <Box
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            minH="200px"
+          >
             {issues.map((issue, index) => (
-              <IssueCard key={issue.id} issue={issue} index={index} />
+              <Draggable key={issue.id} draggableId={issue.id.toString()} index={index}>
+                {(providedDrag) => (
+                  <Box
+                    ref={providedDrag.innerRef}
+                    {...providedDrag.draggableProps}
+                    {...providedDrag.dragHandleProps}
+                    mb={2}
+                  >
+                    <IssueCard issue={issue} />
+                  </Box>
+                )}
+              </Draggable>
             ))}
             {provided.placeholder}
-          </div>
+          </Box>
         )}
       </Droppable>
-    </div>
+    </Box>
   )
 }
 
