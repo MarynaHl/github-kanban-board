@@ -30,8 +30,8 @@ const KanbanBoard: React.FC = () => {
     const { source, destination } = result
     if (!destination) return
 
-    const sourceColumn = source.droppableId as keyof RootState['issues']
-    const destColumn = destination.droppableId as keyof RootState['issues']
+    const sourceColumn = source.droppableId as keyof Omit<RootState['issues'], 'repoKey'>
+    const destColumn = destination.droppableId as keyof Omit<RootState['issues'], 'repoKey'>
 
     if (sourceColumn === destColumn && source.index === destination.index) return
 
