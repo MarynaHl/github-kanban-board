@@ -1,23 +1,19 @@
 import React, { useState } from 'react'
-import { Button, Input, Box, Flex, Text } from '@chakra-ui/react'
-import { useAppDispatch } from '../hooks'
+import { Button, Input, Box, Flex } from '@chakra-ui/react'
 import { parseRepoUrl } from '../api/github'
-import { setRepoKey } from '../store/slices/issuesSlice'
 
 interface RepoInputProps {
   onLoad: (owner: string, repo: string) => void
 }
 
-const RepoInput: React.FC<RepoInputProps> = ({ onLoad }) => {
-  const dispatch = useAppDispatch()
+function RepoInput({ onLoad }: RepoInputProps) {
   const [url, setUrl] = useState('')
 
   const handleLoad = () => {
     try {
       const { owner, repo } = parseRepoUrl(url)
-      dispatch(setRepoKey(`${owner}/${repo}`))
       onLoad(owner, repo)
-    } catch (e) {
+    } catch {
       alert('Please enter a valid repository URL!!')
     }
   }

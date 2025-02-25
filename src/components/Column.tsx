@@ -1,45 +1,37 @@
 import React from 'react'
-import { Droppable, Draggable } from '@hello-pangea/dnd'
-import { Box, Text } from '@chakra-ui/react'
+import { Droppable } from '@hello-pangea/dnd'
 import { Issue } from '../store/slices/issuesSlice'
 import IssueCard from './IssueCard'
+import { Box, Heading } from '@chakra-ui/react'
 
 interface ColumnProps {
-  columnId: 'todo' | 'inProgress' | 'done'
+  columnId: string
   title: string
   issues: Issue[]
 }
 
-const Column: React.FC<ColumnProps> = ({ columnId, title, issues }) => {
+function Column({ columnId, title, issues }: ColumnProps) {
   return (
-    <Box flex="1" border="1px solid #ccc" borderRadius="md" p={2}>
-      <Text fontSize="xl" mb={2}>{title}</Text>
-      <Droppable droppableId={columnId}>
-        {(provided) => (
-          <Box
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            minH="200px"
-          >
-            {issues.map((issue, index) => (
-              <Draggable key={issue.id} draggableId={issue.id.toString()} index={index}>
-                {(providedDrag) => (
-                  <Box
-                    ref={providedDrag.innerRef}
-                    {...providedDrag.draggableProps}
-                    {...providedDrag.dragHandleProps}
-                    mb={2}
-                  >
-                    <IssueCard issue={issue} />
-                  </Box>
-                )}
-              </Draggable>
-            ))}
-            {provided.placeholder}
-          </Box>
-        )}
-      </Droppable>
-    </Box>
+    <Droppable droppableId={columnId}>
+      {(provided) => (
+        <Box
+          ref={provided.innerRef}
+          {...provided.droppableProps}
+          bg="gray.100"
+          p={4}
+          flex="1"
+          minH="400px"
+        >
+          <Heading size="md" mb={4}>
+            {title}
+          </Heading>
+          {issues.map((issue, index) => (
+            <IssueCard key={issue.id} issue={issue} index={index} />
+          ))}
+          {provided.placeholder}
+        </Box>
+      )}
+    </Droppable>
   )
 }
 

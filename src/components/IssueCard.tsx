@@ -1,20 +1,38 @@
 import React from 'react'
+import { Draggable } from '@hello-pangea/dnd'
 import { Box, Text } from '@chakra-ui/react'
 import { Issue } from '../store/slices/issuesSlice'
 
 interface IssueCardProps {
   issue: Issue
+  index: number
 }
 
-const IssueCard: React.FC<IssueCardProps> = ({ issue }) => {
+function IssueCard({ issue, index }: IssueCardProps) {
   return (
-    <Box border="1px solid #999" borderRadius="md" p={2} bg="white">
-      <Text fontWeight="bold">{issue.title}</Text>
-      <Text>#{issue.number} opened {Math.floor((Date.now() - new Date(issue.created_at).getTime()) / (1000*60*60*24))} days ago</Text>
-      <Text>Assignee: {issue.assignee?.login || 'None'}</Text>
-      <Text>Comments: {issue.comments}</Text>
-      <Text>State: {issue.state}</Text>
-    </Box>
+    <Draggable draggableId={issue.id.toString()} index={index}>
+      {(provided) => (
+        <Box
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          bg="white"
+          p={2}
+          mb={2}
+          borderRadius="md"
+          boxShadow="md"
+        >
+          <Text fontWeight="bold">
+            #{issue.number} {issue.title}
+          </Text>
+          <Text fontSize="sm">
+            Opened {new Date(issue.created_at).toDateString()}
+          </Text>
+          <Text fontSize="sm">Comments: {issue.comments}</Text>
+          <Text fontSize="sm">By: {issue.user.login}</Text>
+        </Box>
+      )}
+    </Draggable>
   )
 }
 

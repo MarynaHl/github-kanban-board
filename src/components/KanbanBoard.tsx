@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
-import { DragDropContext } from '@hello-pangea/dnd'
+import { DragDropContext, DropResult } from '@hello-pangea/dnd'
 import { RootState } from '../store/store'
 import { moveIssue, setIssues } from '../store/slices/issuesSlice'
 import Column from './Column'
 import { loadIssuesState, saveIssuesState } from '../utils/localStorage'
 import { useAppDispatch } from '../hooks'
 
-const KanbanBoard: React.FC = () => {
+function KanbanBoard() {
   const dispatch = useAppDispatch()
   const { todo, inProgress, done, repoKey } = useSelector((state: RootState) => state.issues)
 
@@ -26,21 +26,18 @@ const KanbanBoard: React.FC = () => {
     }
   }, [repoKey, todo, inProgress, done])
 
-  const onDragEnd = (result: any) => {
+  const onDragEnd = (result: DropResult) => {
     const { source, destination } = result
     if (!destination) return
-
-    const sourceColumn = source.droppableId as keyof Omit<RootState['issues'], 'repoKey'>
-    const destColumn = destination.droppableId as keyof Omit<RootState['issues'], 'repoKey'>
-
-    if (sourceColumn === destColumn && source.index === destination.index) return
-
-    dispatch(moveIssue({
-      sourceColumn,
-      destColumn,
-      sourceIndex: source.index,
-      destIndex: destination.index,
-    }))
+    if (source.droppableId === destination.droppableId && source.index === destination.index) return
+    dispatch(
+      moveIssue({
+        sourceColumn: source.droppableId as keyof Omit<RootState['issues'], 'repoKey' | 'status'>,
+        destColumn: destination.droppableId as keyof Omit<RootState['issues'], 'repoKey' | 'status'>,
+        sourceIndex: source.index,
+        destIndex: destination.index
+      })
+    )
   }
 
   return (
